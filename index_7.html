@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mathe Wiederholung</title>
+<style>
+  :root {
+    --bg:#f3f5fa; --card:#fff; --text:#1d2433; --muted:#5b6478; --line:#dfe3ec;
+    --accent:#3b6df0; --accent-soft:#e6edff; --a:#e8590c; --b:#2f9e44; --c:#3b6df0;
+    --ok:#2f9e44; --ok-soft:#e3f6e8; --bad:#d6336c; --bad-soft:#fde6ef;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#12151c; --card:#1a1f2a; --text:#e8ecf5; --muted:#9aa4ba; --line:#2b3242;
+      --accent:#7a9cff; --accent-soft:#232c47; --a:#ff922b; --b:#69db7c; --c:#7a9cff;
+      --ok:#69db7c; --ok-soft:#1d3426; --bad:#ff6b9d; --bad-soft:#3a1f2c;
+    }
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--bg); color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  .bar { position:sticky; top:0; z-index:5; background:var(--card); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:12px; padding:12px 16px; }
+  .bar .ttl { font-weight:800; font-size:1.1rem; }
+  .backbtn { text-decoration:none; color:var(--accent); background:var(--accent-soft); font-weight:800;
+    width:38px; height:38px; display:grid; place-items:center; border-radius:12px; font-size:1.2rem; }
+  .wrap { max-width:760px; margin:0 auto; padding:20px 16px 60px; }
+  h1 { font-size:1.7rem; margin:6px 0 16px; }
+  h2 { margin:0 0 8px; } h3 { margin:20px 0 6px; }
+
+  /* Startseite */
+  .mainbtns { display:grid; gap:16px; }
+  .mainbtn { display:flex; align-items:center; gap:18px; text-decoration:none; color:#fff;
+    background:var(--tc); border-radius:24px; padding:26px 24px; min-height:120px;
+    box-shadow:0 6px 18px rgba(0,0,0,.15); transition:transform .12s; }
+  .mainbtn:active { transform:scale(.98); }
+  .mainbtn .mi { font-size:3rem; }
+  .mainbtn b { display:block; font-size:1.6rem; }
+  .mainbtn small { font-size:.95rem; opacity:.92; }
+
+  /* Kachel-Raster */
+  .tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; }
+  .tile { background:var(--tc); color:#fff; text-decoration:none; border-radius:24px; aspect-ratio:1;
+    padding:14px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:8px; box-shadow:0 4px 14px rgba(0,0,0,.15); transition:transform .12s; }
+  .tile:active { transform:scale(.96); }
+  .tile .ic { font-size:2.8rem; line-height:1; }
+  .tile .sym { font-weight:800; font-size:1.5rem; }
+  .tile b { font-size:1rem; line-height:1.2; }
+  .tile small { font-size:.78rem; opacity:.9; }
+  .tile.soon { background:transparent; color:var(--muted); border:2px dashed var(--line); box-shadow:none; }
+
+  /* Inhalt */
+  .card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:20px; margin-bottom:16px; }
+  .center { text-align:center; } .big { font-size:3.5rem; }
+  .small { color:var(--muted); font-size:.88rem; margin-bottom:8px; }
+  .a{color:var(--a)} .b{color:var(--b)} .c{color:var(--c)}
+  .formula { font-size:1.5rem; text-align:center; font-weight:800; padding:14px; background:var(--accent-soft);
+    border-radius:14px; margin:14px 0; }
+  .box { border-left:4px solid var(--accent); background:var(--accent-soft); padding:10px 14px;
+    border-radius:0 12px 12px 0; margin:14px 0; }
+  svg.vis { width:100%; height:auto; display:block; background:var(--bg); border-radius:14px; }
+  .ctrl { margin:10px 0; }
+  .ctrl label { display:flex; justify-content:space-between; font-weight:700; }
+  input[type=range] { width:100%; accent-color:var(--accent); }
+  .result { margin-top:10px; padding:12px 14px; border-radius:12px; background:var(--bg); border:1px dashed var(--line); }
+  table { border-collapse:collapse; width:100%; margin:10px 0; }
+  th,td { border:1px solid var(--line); padding:8px; text-align:center; }
+  th { background:var(--accent-soft); }
+
+  .btn { display:block; width:100%; text-align:center; text-decoration:none; font:inherit; font-weight:800;
+    font-size:1.05rem; padding:15px 18px; border-radius:16px; border:0; background:var(--accent);
+    color:#fff; cursor:pointer; margin-top:14px; }
+  .btn.ghost { background:var(--accent-soft); color:var(--accent); }
+  .btn:disabled { opacity:.4; cursor:not-allowed; }
+  .btnrow { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+  /* Fragen */
+  .qtext { font-size:1.15rem; font-weight:600; margin-bottom:14px; }
+  .qtext svg { max-width:260px; display:block; margin:10px auto 0; background:var(--bg); border-radius:12px; }
+  .opts { display:grid; gap:10px; }
+  .opt { font:inherit; font-size:1.05rem; text-align:left; padding:14px 16px; border-radius:14px;
+    border:2px solid var(--line); background:var(--bg); color:var(--text); cursor:pointer; }
+  .opt.sel { border-color:var(--accent); background:var(--accent-soft); }
+  .opt.right { border-color:var(--ok); background:var(--ok-soft); }
+  .opt.wrong { border-color:var(--bad); background:var(--bad-soft); }
+  .numrow { display:flex; align-items:center; gap:10px; }
+  .numrow input { font:inherit; font-size:1.2rem; padding:12px 14px; border-radius:14px; border:2px solid var(--line);
+    background:var(--bg); color:var(--text); width:100%; }
+  .numrow input:focus { outline:none; border-color:var(--accent); }
+  .unit { font-weight:700; color:var(--muted); }
+  .fb { padding:12px 14px; border-radius:12px; margin-top:14px; font-weight:700; }
+  .fb.ok { background:var(--ok-soft); color:var(--ok); } .fb.bad { background:var(--bad-soft); color:var(--bad); }
+  .expl { margin-top:10px; color:var(--muted); font-size:.95rem; }
+  .stats { display:flex; gap:16px; font-weight:800; margin-bottom:12px; color:var(--muted); }
+  .prog { height:10px; background:var(--line); border-radius:99px; overflow:hidden; margin-bottom:14px; }
+  .prog div { height:100%; background:var(--accent); transition:width .3s; }
+  .grade { font-size:4.5rem; font-weight:900; line-height:1; }
+  .rq { border-top:1px solid var(--line); padding:14px 0; }
+  .rq:first-child { border-top:0; }
+  .rq .qtext { font-size:1rem; } .rq svg { max-width:160px; }
+  .hint { color:var(--muted); font-size:.9rem; }
+
+  /* ---- Cleaner Look ---- */
+  .bar { background:var(--bg); }
+  .backbtn { background:transparent; border:1px solid var(--line); color:var(--text); font-size:1rem; }
+  .mainbtns { gap:12px; }
+  .mainbtn { background:var(--card); color:var(--text); border:1px solid var(--line); border-left:6px solid var(--tc);
+    border-radius:16px; box-shadow:none; min-height:92px; padding:20px 22px; justify-content:space-between; gap:12px; }
+  .mainbtn::after { content:"\203A"; font-size:2rem; color:var(--muted); line-height:1; }
+  .mainbtn b { font-size:1.3rem; }
+  .mainbtn small { color:var(--muted); opacity:1; font-size:.95rem; }
+  .mainbtn:hover, .tile:hover { border-color:var(--tc); }
+  .tile { background:var(--card); color:var(--text); border:1px solid var(--line); box-shadow:none; border-radius:16px;
+    align-items:flex-start; justify-content:space-between; text-align:left; padding:16px; gap:0; }
+  .tile .ic { color:var(--tc); height:44px; display:flex; align-items:center; font-size:1rem; }
+  .tile .ic svg { width:40px; height:40px; }
+  .tile .sym { font-size:1.4rem; color:var(--tc); letter-spacing:-.02em; }
+  .tile .tx { display:block; }
+  .tile b { display:block; font-size:1rem; color:var(--text); }
+  .tile small { display:block; color:var(--muted); opacity:1; margin-top:2px; }
+  .tile.soon { background:transparent; border:2px dashed var(--line); align-items:center; justify-content:center; text-align:center; }
+  .card { border-radius:16px; }
+  .btn { border-radius:12px; }
+  .stats { font-weight:600; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   HILFSFUNKTIONEN
+   ===================================================================== */
+const rnd = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const pick = arr => arr[rnd(0,arr.length-1)];
+const shuffle = arr => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]];} return a; };
+const fmt = n => String(Math.round(n*100)/100).replace('.',',');
+const parseNum = s => parseFloat(String(s).trim().replace(',','.'));
+
+/* Frage-Typen:
+   mc(...)  = Multiple Choice     num(...) = Zahl eingeben */
+function mc(html, correct, wrongs, explain){
+  const opts = shuffle([correct, ...wrongs]);
+  return { type:'mc', html, options:opts, answer:opts.indexOf(correct), explain };
+}
+function num(html, answer, explain, o={}){
+  return { type:'num', html, answer, tol:o.tol ?? 0.01, unit:o.unit || '', explain };
+}
+
+/* Fortschritt speichern (nur im eigenen Browser) */
+const store = {
+  get(){ try { return JSON.parse(localStorage.getItem('mathe_verstehen')||'{}'); } catch(e){ return {}; } },
+  set(o){ try { localStorage.setItem('mathe_verstehen', JSON.stringify(o)); } catch(e){} }
+};
+function addProgress(id, fn){ const s=store.get(); s[id]=s[id]||{right:0,tried:0,best:null}; fn(s[id]); store.set(s); }
+function getProgress(id){ return store.get()[id] || {right:0,tried:0,best:null}; }
+const grade = p => p>=92?1 : p>=81?2 : p>=67?3 : p>=50?4 : p>=30?5 : 6;
+
+/* =====================================================================
+   THEMA 1: RECHTWINKLIGES DREIECK
+   ===================================================================== */
+function learnDreieck(el){
+  el.innerHTML = `
+  <div class="card">
+    <h2>Das rechtwinklige Dreieck</h2>
+    <p>Ein Dreieck ist <b>rechtwinklig</b>, wenn einer seiner Winkel genau <b>90°</b> hat. Dieser Winkel heißt <b>rechter Winkel</b> und wird mit einem kleinen Quadrat markiert.</p>
+    <svg class="vis" viewBox="0 0 320 240">
+      <polygon points="50,200 270,200 50,50" fill="var(--accent-soft)" stroke="var(--text)" stroke-width="2"/>
+      <path d="M50,180 H70 V200" fill="none" stroke="var(--text)" stroke-width="2"/>
+      <line x1="50" y1="200" x2="270" y2="200" stroke="var(--a)" stroke-width="5"/>
+      <line x1="50" y1="200" x2="50" y2="50" stroke="var(--b)" stroke-width="5"/>
+      <line x1="50" y1="50" x2="270" y2="200" stroke="var(--c)" stroke-width="5"/>
+      <text x="160" y="224" text-anchor="middle" font-size="18" font-weight="700" fill="var(--a)">a</text>
+      <text x="30" y="130" text-anchor="middle" font-size="18" font-weight="700" fill="var(--b)">b</text>
+      <text x="175" y="110" font-size="18" font-weight="700" fill="var(--c)">c</text>
+      <text x="22" y="218" font-size="13" fill="var(--muted)">90°</text>
+    </svg>
+    <h3>Die Seiten haben Namen</h3>
+    <ul>
+      <li><b class="a">Kathete a</b> und <b class="b">Kathete b</b>: die zwei Seiten, die am rechten Winkel anliegen.</li>
+      <li><b class="c">Hypotenuse c</b>: die Seite <b>gegenüber</b> vom rechten Winkel. Sie ist immer die <b>längste</b> Seite.</li>
+    </ul>
+    <div class="box"><b>Winkelsumme:</b> In jedem Dreieck ergeben alle drei Winkel zusammen 180°. Beim rechtwinkligen Dreieck sind 90° schon vergeben, die anderen zwei Winkel ergeben also zusammen 90°.</div>
+    <div class="box"><b>Beispiel:</b> Ein Winkel ist 90°, ein weiterer 35°. Der dritte Winkel ist 180° − 90° − 35° = <b>55°</b>.</div>
+  </div>`;
+}
+function svgHyp(){
+  const L = shuffle(['a','b','c','p','q','r','x','y','z']).slice(0,3);
+  const flip = Math.random() < .5, fx = x => flip ? 240-x : x;
+  const svg = `<svg viewBox="0 0 240 190">
+    <polygon points="${fx(40)},150 ${fx(200)},150 ${fx(40)},30" fill="var(--accent-soft)" stroke="var(--text)" stroke-width="2"/>
+    <path d="M${fx(54)},150 V136 H${fx(40)}" fill="none" stroke="var(--text)" stroke-width="2"/>
+    <text x="${fx(120)}" y="172" text-anchor="middle" font-size="18" font-weight="700" fill="var(--text)">${L[0]}</text>
+    <text x="${fx(22)}" y="95" text-anchor="middle" font-size="18" font-weight="700" fill="var(--text)">${L[1]}</text>
+    <text x="${fx(152)}" y="84" text-anchor="middle" font-size="18" font-weight="700" fill="var(--text)">${L[2]}</text>
+  </svg>`;
+  return { svg, L };
+}
+const gensDreieck = [
+  () => { const {svg,L} = svgHyp();
+    return mc(`Welche Seite ist die Hypotenuse?${svg}`, L[2], [L[0],L[1]],
+      `Die Hypotenuse liegt dem rechten Winkel gegenüber. Das ist die Seite <b>${L[2]}</b>.`); },
+  () => { const al = rnd(20,70);
+    return num(`In einem Dreieck ist ein Winkel 90° und ein weiterer ${al}°. Wie groß ist der dritte Winkel?`, 90-al,
+      `Winkelsumme 180°: 180° − 90° − ${al}° = ${90-al}°.`, {unit:'°'}); },
+  () => { const p = pick([
+      ['Wie groß ist der rechte Winkel?','90°',['45°','180°','60°'],'Ein rechter Winkel hat immer 90°.'],
+      ['Wie heißen die zwei Seiten, die am rechten Winkel anliegen?','Katheten',['Hypotenusen','Diagonalen','Höhen'],'Die Seiten am rechten Winkel heißen Katheten.'],
+      ['Welche Seite ist im rechtwinkligen Dreieck immer die längste?','Die Hypotenuse',['Eine Kathete','Alle sind gleich lang','Das hängt vom Dreieck ab'],'Die Hypotenuse ist immer die längste Seite.'],
+      ['Wie groß ist die Winkelsumme in jedem Dreieck?','180°',['90°','360°','100°'],'Alle drei Winkel zusammen ergeben immer 180°.'],
+      ['Womit markiert man den rechten Winkel in einer Zeichnung?','Mit einem kleinen Quadrat',['Mit einem Kreis','Mit einem Dreieck','Mit einem Stern'],'Der rechte Winkel bekommt ein kleines Quadrat.'],
+      ['Wie viele Katheten hat ein rechtwinkliges Dreieck?','2',['1','3','0'],'Es gibt zwei Katheten und eine Hypotenuse.']
+    ]); return mc(p[0], p[1], p[2], p[3]); }
+];
+
+/* =====================================================================
+   THEMA 2: SATZ DES PYTHAGORAS
+   ===================================================================== */
+function learnPyth(el){
+  el.innerHTML = `
+  <div class="card">
+    <h2>Der Satz des Pythagoras</h2>
+    <p>In jedem rechtwinkligen Dreieck gilt: Die Fläche des Quadrats über der Hypotenuse ist so groß wie die Flächen der beiden Quadrate über den Katheten zusammen.</p>
+    <div class="formula"><span class="a">a²</span> + <span class="b">b²</span> = <span class="c">c²</span></div>
+    <svg class="vis" id="pySvg" viewBox="0 0 400 300"></svg>
+    <div class="ctrl"><label><span class="a">Kathete a</span><span id="aVal">3</span></label><input type="range" id="aSl" min="1" max="12" value="3"></div>
+    <div class="ctrl"><label><span class="b">Kathete b</span><span id="bVal">4</span></label><input type="range" id="bSl" min="1" max="12" value="4"></div>
+    <div class="result" id="pyRes"></div>
+    <h3>Was kann man damit berechnen?</h3>
+    <ul>
+      <li><b>Hypotenuse:</b> c = √(a² + b²)</li>
+      <li><b>Kathete:</b> a = √(c² − b²) oder b = √(c² − a²)</li>
+      <li><b>Rechtwinklig?</b> Wenn a² + b² = c² stimmt, ist das Dreieck rechtwinklig.</li>
+    </ul>
+    <div class="box"><b>Beispiel:</b> a = 6 cm, b = 8 cm.<br>c² = 6² + 8² = 36 + 64 = 100, also c = √100 = <b>10 cm</b>.</div>
+    <h3>Pythagoreische Tripel</h3>
+    <p>Ganze Zahlen, bei denen der Satz genau aufgeht:</p>
+    <table><tr><th>a</th><th>b</th><th>c</th></tr>
+      <tr><td>3</td><td>4</td><td>5</td></tr><tr><td>6</td><td>8</td><td>10</td></tr>
+      <tr><td>5</td><td>12</td><td>13</td></tr><tr><td>8</td><td>15</td><td>17</td></tr></table>
+  </div>`;
+  const $ = s => el.querySelector(s);
+  function draw(){
+    const a=+$('#aSl').value, b=+$('#bSl').value; $('#aVal').textContent=a; $('#bVal').textContent=b;
+    const c=Math.sqrt(a*a+b*b);
+    const minX=-b, maxX=a+b, minY=-(a+b), maxY=a, pad=1, w=maxX-minX+2*pad, h=maxY-minY+2*pad;
+    const fs=Math.max(w,h)*.05, sw=Math.max(w,h)*.006;
+    $('#pySvg').setAttribute('viewBox',`${minX-pad} ${minY-pad} ${w} ${h}`);
+    const P=pts=>pts.map(p=>p.join(',')).join(' ');
+    const A=[0,-b], B=[a,0], C=[0,0], p=[b,-a];
+    const sqA=[[0,0],[a,0],[a,a],[0,a]], sqB=[[0,0],[0,-b],[-b,-b],[-b,0]];
+    const sqC=[A,B,[B[0]+p[0],B[1]+p[1]],[A[0]+p[0],A[1]+p[1]]];
+    const lbl=(q,t,col)=>{const x=q.reduce((s,v)=>s+v[0],0)/4,y=q.reduce((s,v)=>s+v[1],0)/4;
+      return `<text x="${x}" y="${y+fs*.35}" font-size="${fs}" font-weight="700" text-anchor="middle" fill="${col}">${t}</text>`;};
+    $('#pySvg').innerHTML=`
+      <polygon points="${P(sqA)}" fill="var(--a)" fill-opacity=".25" stroke="var(--a)" stroke-width="${sw}"/>
+      <polygon points="${P(sqB)}" fill="var(--b)" fill-opacity=".25" stroke="var(--b)" stroke-width="${sw}"/>
+      <polygon points="${P(sqC)}" fill="var(--c)" fill-opacity=".25" stroke="var(--c)" stroke-width="${sw}"/>
+      <polygon points="${P([C,B,A])}" fill="var(--card)" stroke="var(--text)" stroke-width="${sw*1.5}"/>
+      ${lbl(sqA,'a² = '+a*a,'var(--a)')}${lbl(sqB,'b² = '+b*b,'var(--b)')}${lbl(sqC,'c² = '+(a*a+b*b),'var(--c)')}`;
+    $('#pyRes').innerHTML=`<span class="a">${a}² = ${a*a}</span> + <span class="b">${b}² = ${b*b}</span> = <span class="c">${a*a+b*b}</span><br>
+      c = √${a*a+b*b} ≈ <b class="c">${fmt(c)}</b>${Number.isInteger(c)?'<br><b style="color:var(--ok)">Pythagoreisches Tripel: c ist eine ganze Zahl.</b>':''}`;
+  }
+  $('#aSl').oninput=draw; $('#bSl').oninput=draw; draw();
+}
+const TRIPLES=[[3,4,5],[5,12,13],[8,15,17],[7,24,25],[6,8,10],[9,12,15],[20,21,29]];
+const triple = () => { const t=pick(TRIPLES), k=pick([1,1,1,2]); return t.map(v=>v*k); };
+const gensPyth = [
+  () => { const [a,b,c]=triple();
+    return num(`Kathete a = ${a} cm, Kathete b = ${b} cm. Wie lang ist die Hypotenuse c?`, c,
+      `c² = a² + b² = ${a}² + ${b}² = ${a*a} + ${b*b} = ${a*a+b*b}, also c = √${a*a+b*b} = ${c}.`, {unit:'cm'}); },
+  () => { const [a,b,c]=triple(), swap=Math.random()<.5, k1=swap?b:a, ans=swap?a:b;
+    return num(`Die Hypotenuse ist c = ${c} cm, eine Kathete ist ${k1} cm lang. Wie lang ist die andere Kathete?`, ans,
+      `Kathete² = c² − ${k1}² = ${c*c} − ${k1*k1} = ${ans*ans}, also Kathete = √${ans*ans} = ${ans}.`, {unit:'cm'}); },
+  () => { let a,b,c; do { a=rnd(2,9); b=rnd(2,9); c=Math.sqrt(a*a+b*b); } while(Number.isInteger(c) || Math.abs(c*10-Math.round(c*10))<0.02);
+    const r=Math.round(c*10)/10;
+    return num(`Kathete a = ${a} cm, Kathete b = ${b} cm. Berechne c und runde auf eine Nachkommastelle.`, r,
+      `c² = ${a}² + ${b}² = ${a*a+b*b}, c = √${a*a+b*b} ≈ ${fmt(c)} ≈ ${fmt(r)} (Taschenrechner: Wurzel-Taste).`, {unit:'cm', tol:0.06}); },
+  () => { const [a,b,c]=triple(), ok=Math.random()<.5, cc=ok?c:c+pick([1,2]);
+    const s=shuffle([a,b,cc]);
+    return mc(`Ein Dreieck hat die Seitenlängen ${s.join(' cm, ')} cm. Ist es rechtwinklig?`, ok?'Ja':'Nein', [ok?'Nein':'Ja'],
+      `Prüfe mit der längsten Seite als c: ${a}² + ${b}² = ${a*a+b*b} und ${cc}² = ${cc*cc}. ${ok?'Beide Werte sind gleich, also rechtwinklig.':'Die Werte sind verschieden, also nicht rechtwinklig.'}`); },
+  () => { const [a,b,c]=triple();
+    return num(`Eine ${c} m lange Leiter lehnt an einer Wand. Ihr Fuß steht ${a} m von der Wand entfernt. Wie hoch reicht die Leiter an der Wand?`, b,
+      `Die Leiter ist die Hypotenuse: Höhe² = ${c}² − ${a}² = ${c*c} − ${a*a} = ${b*b}, also Höhe = ${b} m.`, {unit:'m'}); },
+  () => { const [a,b,c]=triple();
+    return num(`Ein Rechteck ist ${a} cm lang und ${b} cm breit. Wie lang ist die Diagonale?`, c,
+      `Die Diagonale ist die Hypotenuse: d² = ${a}² + ${b}² = ${a*a+b*b}, also d = ${c} cm.`, {unit:'cm'}); },
+  () => { const [x,y,z]=pick([['a','b','c'],['p','q','r'],['x','y','z'],['k','l','m']]).slice().sort(()=>Math.random()-.5);
+    return mc(`In einem rechtwinkligen Dreieck sind ${x} und ${y} die Katheten und ${z} die Hypotenuse. Welche Gleichung stimmt?`,
+      `${x}² + ${y}² = ${z}²`, [`${x} + ${y} = ${z}`, `${x}² + ${z}² = ${y}²`, `${z}² + ${y}² = ${x}²`],
+      `Die Quadrate der Katheten ergeben zusammen das Quadrat der Hypotenuse: ${x}² + ${y}² = ${z}².`); }
+];
+
+/* =====================================================================
+   THEMA 3: SINUS, KOSINUS, TANGENS
+   ===================================================================== */
+function learnTrigo(el){
+  el.innerHTML = `
+  <div class="card">
+    <h2>Sinus, Kosinus, Tangens</h2>
+    <p>Wenn du den rechten Winkel und einen weiteren Winkel <b>α</b> kennst, kannst du mit Seitenverhältnissen rechnen. Vom Winkel α aus gesehen gibt es die <b class="b">Ankathete</b> (liegt am Winkel an) und die <b class="a">Gegenkathete</b> (liegt gegenüber).</p>
+    <svg class="vis" id="trigSvg" viewBox="0 0 400 300"></svg>
+    <div class="ctrl"><label><span>Winkel α</span><span id="angVal">35°</span></label><input type="range" id="angSl" min="5" max="85" value="35"></div>
+    <div class="result" id="trigRes"></div>
+    <div class="formula" style="font-size:1.15rem;text-align:left;line-height:1.9">
+      sin(α) = Gegenkathete ÷ Hypotenuse<br>cos(α) = Ankathete ÷ Hypotenuse<br>tan(α) = Gegenkathete ÷ Ankathete
+    </div>
+    <div class="box"><b>Eselsbrücke GAGA-HAHA:</b> <b>G</b>egen ÷ <b>H</b>ypotenuse = Sinus, <b>A</b>n ÷ <b>H</b>ypotenuse = Kosinus, <b>G</b>egen ÷ <b>A</b>n = Tangens.</div>
+    <div class="box"><b>Beispiel:</b> Gegenkathete = 3, Ankathete = 4, Hypotenuse = 5.<br>sin(α) = 3 ÷ 5 = 0,6 · cos(α) = 4 ÷ 5 = 0,8 · tan(α) = 3 ÷ 4 = 0,75</div>
+    <p class="hint">Wichtig beim Taschenrechner: Stelle ihn auf <b>DEG</b> (Gradmaß).</p>
+  </div>`;
+  const $ = s => el.querySelector(s);
+  function draw(){
+    const deg=+$('#angSl').value; $('#angVal').textContent=deg+'°';
+    const r=deg*Math.PI/180, L=250, Ax=40, Ay=270, Cx=Ax+L*Math.cos(r), Cy=Ay, Bx=Cx, By=Ay-L*Math.sin(r);
+    const ar=40, ax=Ax+ar*Math.cos(r), ay=Ay-ar*Math.sin(r), sq=14;
+    $('#trigSvg').innerHTML=`
+      <polygon points="${Ax},${Ay} ${Cx},${Cy} ${Bx},${By}" fill="var(--accent-soft)" stroke="var(--text)" stroke-width="2"/>
+      <path d="M${Cx-sq},${Cy} V${Cy-sq} H${Cx}" fill="none" stroke="var(--text)" stroke-width="1.5"/>
+      <path d="M${Ax+ar},${Ay} A${ar},${ar} 0 0 0 ${ax},${ay}" fill="none" stroke="var(--accent)" stroke-width="3"/>
+      <text x="${Ax+ar+8}" y="${Ay-8}" font-size="16" font-weight="700" fill="var(--accent)">α</text>
+      <text x="${(Ax+Cx)/2}" y="${Ay+22}" text-anchor="middle" font-size="14" fill="var(--b)" font-weight="700">Ankathete</text>
+      <text x="${Cx+8}" y="${(Cy+By)/2}" font-size="14" fill="var(--a)" font-weight="700">Gegenkathete</text>
+      <text x="${(Ax+Bx)/2-10}" y="${(Ay+By)/2-10}" text-anchor="end" font-size="14" fill="var(--c)" font-weight="700">Hypotenuse</text>`;
+    $('#trigRes').innerHTML=`sin(${deg}°) = <b>${fmt(Math.sin(r))}</b> &nbsp; cos(${deg}°) = <b>${fmt(Math.cos(r))}</b> &nbsp; tan(${deg}°) = <b>${fmt(Math.tan(r))}</b>`;
+  }
+  $('#angSl').oninput=draw; draw();
+}
+const gensTrigo = [
+  () => { const [g,an,h]=triple(), f=pick(['sin','cos','tan']);
+    const val = f==='sin'?g/h : f==='cos'?an/h : g/an;
+    const form = f==='sin'?`${g} ÷ ${h}` : f==='cos'?`${an} ÷ ${h}` : `${g} ÷ ${an}`;
+    const name = f==='sin'?'Gegenkathete ÷ Hypotenuse':f==='cos'?'Ankathete ÷ Hypotenuse':'Gegenkathete ÷ Ankathete';
+    return num(`Gegenkathete = ${g} cm, Ankathete = ${an} cm, Hypotenuse = ${h} cm. Berechne ${f}(α) auf 2 Nachkommastellen.`, Math.round(val*100)/100,
+      `${f}(α) = ${name} = ${form} ≈ ${fmt(val)}.`, {tol:0.011}); },
+  () => { const f=pick(['sin','cos','tan']);
+    const d={sin:'Gegenkathete ÷ Hypotenuse',cos:'Ankathete ÷ Hypotenuse',tan:'Gegenkathete ÷ Ankathete'};
+    const wrongs=Object.keys(d).filter(k=>k!==f).map(k=>d[k]);
+    return mc(`Welche Formel gehört zum ${f==='sin'?'Sinus':f==='cos'?'Kosinus':'Tangens'}?`, d[f], wrongs,
+      `Eselsbrücke GAGA-HAHA: ${f}(α) = ${d[f]}.`); },
+  () => { const t=pick([['sin(30°)','0,5'],['cos(60°)','0,5'],['tan(45°)','1'],['sin(90°)','1'],['cos(90°)','0'],['sin(0°)','0'],['cos(0°)','1']]);
+    const wr=shuffle(['0','0,5','1','2','0,87'].filter(x=>x!==t[1])).slice(0,3);
+    return mc(`Wie groß ist ${t[0]}?`, t[1], wr, `Merkwert: ${t[0]} = ${t[1]}.`); },
+  () => { const c=pick([8,10,12,20,30]), sinus=Math.random()<.5;
+    return num(`In einem rechtwinkligen Dreieck ist die Hypotenuse ${c} cm lang und α = ${sinus?30:60}°. Wie lang ist die ${sinus?'Gegenkathete':'Ankathete'}?`, c/2,
+      `${sinus?'sin(30°)':'cos(60°)'} = 0,5 und ${sinus?'Gegenkathete':'Ankathete'} = Hypotenuse · 0,5 = ${c} · 0,5 = ${c/2} cm.`, {unit:'cm'}); },
+  () => { const t=pick([['sin α = 0,5',30],['cos α = 0,5',60],['tan α = 1',45]]);
+    return num(`Es gilt ${t[0]}. Wie groß ist α (0° bis 90°)?`, t[1], `Merkwert: ${t[0]} gilt für α = ${t[1]}°.`, {unit:'°'}); }
+];
+
+/* =====================================================================
+   THEMENLISTE – HIER NEUE THEMEN HINZUFÜGEN
+   Ein neues Thema ist ein Objekt in dieser Liste:
+     id     : kurzer Name ohne Leerzeichen
+     title  : Name auf der Kachel
+     icon   : HTML/SVG oder kurzer Text für die Kachel
+     color  : Kachelfarbe
+     learn  : Funktion(el), die die Erklärung in el schreibt
+     gens   : Liste von Funktionen, die je eine zufällige Frage liefern
+              (mc(...) für Auswahl, num(...) für Zahleneingabe)
+   ===================================================================== */
+const TOPICS = [
+  { id:'dreieck',    title:'Rechtwinkliges Dreieck', icon:'<svg viewBox="0 0 40 40"><path d="M6 34V8L34 34Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M6 26H14V34" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>', color:'#3b6df0', learn:learnDreieck, gens:gensDreieck },
+  { id:'pythagoras', title:'Satz des Pythagoras', icon:'<span class="sym">a²+b²</span>', color:'#e8590c', learn:learnPyth, gens:gensPyth },
+  { id:'trigo',      title:'Sinus, Kosinus, Tangens', icon:'<span class="sym">sin</span>', color:'#2f9e44', learn:learnTrigo, gens:gensTrigo }
+];
+const ALLE = { id:'alle', title:'Alle Themen gemischt', icon:'<span class="sym">Mix</span>', color:'#9c36b5',
+  gens: TOPICS.flatMap(t => t.gens) };
+
+const MODES = [
+  { id:'lernen', title:'Lernen', color:'#3b6df0', desc:'Themen Schritt für Schritt erklärt' },
+  { id:'ueben',  title:'Üben', color:'#2f9e44', desc:'Endlos Aufgaben mit Sofort-Feedback' },
+  { id:'probe',  title:'Probearbeit', color:'#d6336c', desc:'Test mit Note – jedes Mal neue Fragen' }
+];
+const TEST_LENGTH = 8;
+
+/* =====================================================================
+   FRAGEN-KOMPONENTE
+   ===================================================================== */
+const newQuestion = t => pick(t.gens)();
+function makeTest(t){
+  const out=[]; let pool=[];
+  while(out.length<TEST_LENGTH){ if(!pool.length) pool=shuffle(t.gens); out.push(pool.pop()()); }
+  return out;
+}
+function qBlock(q){
+  return `<div class="qtext">${q.html}</div>` + (q.type==='mc'
+    ? `<div class="opts">${q.options.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>`
+    : `<div class="numrow"><input id="ans" inputmode="decimal" autocomplete="off" placeholder="Deine Antwort"><span class="unit">${q.unit}</span></div>`);
+}
+function bindQ(root, q, onChange){
+  if(q.type==='mc'){
+    let sel=null; const bs=[...root.querySelectorAll('.opt')];
+    bs.forEach((b,i)=>b.onclick=()=>{ if(b.disabled) return; sel=i; bs.forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); onChange(); });
+    return ()=>sel;
+  }
+  const inp=root.querySelector('#ans'); inp.addEventListener('input',onChange); setTimeout(()=>inp.focus(),0);
+  return ()=>{ const n=parseNum(inp.value); return isNaN(n)?null:n; };
+}
+const isCorrect = (q,a) => a!==null && (q.type==='mc' ? a===q.answer : Math.abs(a-q.answer)<=q.tol);
+const correctText = q => q.type==='mc' ? q.options[q.answer] : fmt(q.answer)+(q.unit?' '+q.unit:'');
+const givenText = (q,a) => a===null ? '–' : q.type==='mc' ? q.options[a] : fmt(a)+(q.unit?' '+q.unit:'');
+
+/* =====================================================================
+   ANSICHTEN
+   ===================================================================== */
+const app = document.getElementById('app');
+function shell(title, back, inner){
+  app.innerHTML = `<header class="bar">${back?`<a class="backbtn" href="${back}">←</a>`:''}<div class="ttl">${title}</div></header><main class="wrap" id="view">${inner||''}</main>`;
+  window.scrollTo(0,0);
+  return document.getElementById('view');
+}
+
+function viewHome(){
+  shell('Mathe Wiederholung', null, `
+    <h1>Mathe Wiederholung</h1>
+    <div class="mainbtns">${MODES.map(m=>`
+      <a class="mainbtn" style="--tc:${m.color}" href="#/${m.id}">
+        <span><b>${m.title}</b><small>${m.desc}</small></span></a>`).join('')}
+    </div>`);
+}
+
+function viewTopics(mode){
+  const m = MODES.find(x=>x.id===mode);
+  const list = mode==='lernen' ? TOPICS : [...TOPICS, ALLE];
+  const sub = t => {
+    const p = getProgress(t.id);
+    if(mode==='ueben') return p.tried ? `${p.right} richtig gelöst` : '';
+    if(mode==='probe') return p.best!==null ? `Beste Note: ${grade(p.best)}` : 'Noch nicht geschrieben';
+    return '';
+  };
+  shell(`${m.title}`, '#/', `
+    <h1>Wähle ein Thema</h1>
+    <div class="tiles">${list.map(t=>`
+      <a class="tile" style="--tc:${t.color}" href="#/${mode}/${t.id}">
+        <span class="ic">${t.icon}</span><span class="tx"><b>${t.title}</b><small>${sub(t)}</small></span></a>`).join('')}
+      <div class="tile soon"><small>Weitere Themen folgen</small></div>
+    </div>`);
+}
+
+function viewLernen(t){
+  const v = shell(`${t.title}`, '#/lernen', '<div id="content"></div>');
+  t.learn(v.querySelector('#content'));
+  v.insertAdjacentHTML('beforeend', `<div class="btnrow">
+    <a class="btn" href="#/ueben/${t.id}">Jetzt üben</a>
+    <a class="btn ghost" href="#/probe/${t.id}">Probearbeit</a></div>`);
+}
+
+function viewUeben(t){
+  const v = shell(`${t.title}`, '#/ueben', '');
+  let score=0,total=0,streak=0,q,answered=false;
+  function next(){ q=newQuestion(t); answered=false; draw(); }
+  function draw(){
+    v.innerHTML = `<div class="stats"><span>Richtig: ${score} von ${total}</span><span>Serie: ${streak}</span></div>
+      <div class="card">${qBlock(q)}<div id="fb"></div><button class="btn" id="go" disabled>Prüfen</button></div>`;
+    const go=v.querySelector('#go');
+    const get=bindQ(v,q,()=>{ if(!answered) go.disabled = get()===null; });
+    const inp=v.querySelector('#ans');
+    if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter' && !go.disabled) go.click(); });
+    go.onclick=()=>{
+      if(answered){ next(); return; }
+      const a=get(); answered=true; total++;
+      const ok=isCorrect(q,a);
+      if(ok){ score++; streak++; } else streak=0;
+      addProgress(t.id===ALLE.id?'alle':t.id, p=>{ p.tried++; if(ok) p.right++; });
+      if(q.type==='mc') v.querySelectorAll('.opt').forEach((b,i)=>{ b.disabled=true; if(i===q.answer) b.classList.add('right'); else if(i===a) b.classList.add('wrong'); });
+      else v.querySelector('#ans').readOnly=true;
+      v.querySelector('#fb').innerHTML = `<div class="fb ${ok?'ok':'bad'}">${ok?'Richtig!':'Nicht ganz. Richtig ist: '+correctText(q)}</div><div class="expl">${q.explain}</div>`;
+      v.querySelector('.stats').innerHTML = `<span>Richtig: ${score} von ${total}</span><span>Serie: ${streak}</span>`;
+      go.textContent='Nächste Aufgabe'; go.disabled=false;
+    };
+  }
+  next();
+}
+
+function viewProbe(t){
+  const v = shell(`Probearbeit: ${t.title}`, '#/probe', `
+    <div class="card center"><h2>Probearbeit</h2>
+      <p>${TEST_LENGTH} Fragen, keine Hilfe zwischendurch. Am Ende bekommst du deine Note und siehst, was du noch üben solltest. Bei jedem Start gibt es neue Aufgaben.</p>
+      <button class="btn" id="start">Probearbeit starten</button></div>`);
+  v.querySelector('#start').onclick=()=>runTest(t,v);
+}
+function runTest(t,v){
+  const qs=makeTest(t), answers=[]; let i=0;
+  function draw(){
+    const q=qs[i], last=i===qs.length-1;
+    v.innerHTML=`<div class="prog"><div style="width:${i/qs.length*100}%"></div></div>
+      <div class="card"><div class="small">Frage ${i+1} von ${qs.length}</div>${qBlock(q)}
+      <button class="btn" id="go" disabled>${last?'Abgeben':'Weiter'}</button></div>`;
+    const go=v.querySelector('#go'); const get=bindQ(v,q,()=>{ go.disabled=get()===null; });
+    const inp=v.querySelector('#ans');
+    if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter' && !go.disabled) go.click(); });
+    go.onclick=()=>{ answers.push(get()); window.scrollTo(0,0); if(last) finish(); else { i++; draw(); } };
+  }
+  function finish(){
+    const right=qs.filter((q,k)=>isCorrect(q,answers[k])).length;
+    const pct=Math.round(right/qs.length*100), g=grade(pct);
+    addProgress(t.id===ALLE.id?'alle':t.id, p=>{ if(p.best===null || pct>p.best) p.best=pct; });
+    v.innerHTML=`<div class="card center"><div class="small">Deine Note</div><div class="grade" style="color:${g<=2?'var(--ok)':g<=4?'var(--accent)':'var(--bad)'}">${g}</div>
+      <p><b>${right} von ${qs.length}</b> richtig (${pct} %)</p></div>
+      <div class="card"><h3 style="margin-top:0">Auswertung</h3>${qs.map((q,k)=>{ const ok=isCorrect(q,answers[k]); return `
+        <div class="rq"><div class="qtext">${k+1}. ${q.html}</div>
+        <div class="fb ${ok?'ok':'bad'}">${ok?'Richtig: ':'Deine Antwort: '+givenText(q,answers[k])+' · Richtig: '}${correctText(q)}</div>
+        ${ok?'':`<div class="expl">${q.explain}</div>`}</div>`; }).join('')}</div>
+      <div class="btnrow"><button class="btn" id="again">Neue Probearbeit</button><a class="btn ghost" href="#/probe">Themen</a></div>`;
+    v.querySelector('#again').onclick=()=>runTest(t,v);
+    window.scrollTo(0,0);
+  }
+  draw();
+}
+
+/* =====================================================================
+   ROUTER  (#/  |  #/lernen  |  #/lernen/pythagoras  usw.)
+   ===================================================================== */
+function route(){
+  const [mode, tid] = location.hash.replace(/^#\/?/,'').split('/').filter(Boolean);
+  if(!MODES.some(m=>m.id===mode)) return viewHome();
+  if(!tid) return viewTopics(mode);
+  const t = tid==='alle' && mode!=='lernen' ? ALLE : TOPICS.find(x=>x.id===tid);
+  if(!t) return viewTopics(mode);
+  if(mode==='lernen') return viewLernen(t);
+  if(mode==='ueben') return viewUeben(t);
+  return viewProbe(t);
+}
+window.addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>
